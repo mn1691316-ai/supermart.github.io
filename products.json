@@ -1,0 +1,182 @@
+[
+  {
+    "category": "Snacks & Chips",
+    "emoji": "🍟",
+    "themeColor": "#f5b800",
+    "products": [
+      { "name": "Lays Masala 65g", "price": 100, "image": "images/lays_masala.png" },
+      { "name": "Kurkure Chutney Chaska", "price": 80, "image": "images/kurkure.png" },
+      { "name": "Doritos Nacho Cheese", "price": 220, "image": "images/doritos.png" },
+      { "name": "Slanty Salted 40g", "price": 60, "image": "images/slanty.png" },
+      { "name": "Cheetos Cheese Puffs", "price": 90, "image": "images/cheetos.png" }
+    ]
+  },
+  {
+    "category": "Biscuits & Cookies",
+    "emoji": "🍪",
+    "themeColor": "#c47a2c",
+    "products": [
+      { "name": "Chocolatto Cookies", "price": 120, "image": "images/chocolatto.png" },
+      { "name": "Prince Chocolate Biscuit", "price": 70, "image": "images/prince.png" },
+      { "name": "Sooper Egg & Milk", "price": 60, "image": "images/sooper.png" },
+      { "name": "Tuc Light Salted", "price": 50, "image": "images/tuc.png" },
+      { "name": "Rio Strawberry Cream", "price": 60, "image": "images/rio.png" }
+    ]
+  },
+  {
+    "category": "Chocolates & Sweets",
+    "emoji": "🍫",
+    "themeColor": "#6b3f2e",
+    "products": [
+      { "name": "Dairy Milk Silk 60g", "price": 260, "image": "images/dairymilk.png" },
+      { "name": "KitKat 4 Finger", "price": 220, "image": "images/kitkat.png" },
+      { "name": "Snickers Peanut Bar", "price": 250, "image": "images/snickers.png" },
+      { "name": "Bounty Coconut Bar", "price": 250, "image": "images/bounty.png" },
+      { "name": "Novita Chocolate Wafers", "price": 90, "image": "images/novita.png" }
+    ]
+  },
+  {
+    "category": "Juices & Drinks",
+    "emoji": "🧃",
+    "themeColor": "#ff7a1a",
+    "products": [
+      { "name": "Nestle Fruita Vitals Mango 1L", "price": 340, "image": "images/nestle_mango.png" },
+      { "name": "Chaunsa Nectar 1 Litre", "price": 310, "image": "images/chaunsa.png" },
+      { "name": "Apple Juice 1 Litre", "price": 320, "image": "images/apple_juice.png" },
+      { "name": "Milo Chocolate Drink 200ml", "price": 90, "image": "images/milo.png" },
+      { "name": "Slice Mango Drink 250ml", "price": 80, "image": "images/slice.png" }
+    ]
+  },
+  {
+    "category": "Cold Drinks & Sodas",
+    "emoji": "🥤",
+    "themeColor": "#2e9be8",
+    "products": [
+      { "name": "Coca Cola 1.5 Litre", "price": 210, "image": "images/coca_cola.png" },
+      { "name": "Sprite Can 250ml", "price": 120, "image": "images/sprite.png" },
+      { "name": "Pakola Ice Cream Soda 1.5L", "price": 190, "image": "images/pakola.png" },
+      { "name": "Aquafina Mineral Water 1.5L", "price": 90, "image": "images/water.png" },
+      { "name": "Sting Energy Berry 300ml", "price": 100, "image": "images/sting.png" }
+    ]
+  },
+  {
+    "category": "Breakfast & Cereals",
+    "emoji": "🥣",
+    "themeColor": "#d6336c",
+    "products": [
+      { "name": "Kellogg's Corn Flakes 300g", "price": 540, "image": "images/cornflakes.png" },
+      { "name": "Fauji Choco Puffs 250g", "price": 360, "image": "images/choco_puffs.png" },
+      { "name": "Quaker White Oats 400g", "price": 420, "image": "images/oats.png" },
+      { "name": "Nutella Hazelnut Spread 350g", "price": 850, "image": "images/nutella.png" },
+      { "name": "Mitchell's Mixed Fruit Jam 450g", "price": 340, "image": "images/jam.png" }
+    ]
+  },
+  {
+    "category": "Bakery & Breads",
+    "emoji": "🍞",
+    "themeColor": "#a9803f",
+    "products": [
+      { "name": "Dawn Milky Bread Large", "price": 190, "image": "images/dawn_bread.png" },
+      { "name": "Dawn Burger Buns 4-Pack", "price": 140, "image": "images/burger_buns.png" },
+      { "name": "Tea Rusk Family Pack", "price": 160, "image": "images/tea_rusk.png" },
+      { "name": "Chocolate Marble Cake", "price": 220, "image": "images/marble_cake.png" },
+      { "name": "Butter Croissant 2-Pack", "price": 180, "image": "images/croissant.png" }
+    ]
+  },
+  {
+    "category": "Dairy & Milk",
+    "emoji": "🥛",
+    "themeColor": "#3b82c4",
+    "products": [
+      { "name": "Olper's Full Cream Milk 1L", "price": 290, "image": "images/olpers.png" },
+      { "name": "MilkPak Dairy Milk 1L", "price": 290, "image": "images/milkpak.png" },
+      { "name": "Nurpur Salted Butter 200g", "price": 390, "image": "images/butter.png" },
+      { "name": "Nestle Everyday Milk Powder 400g", "price": 580, "image": "images/everyday.png" },
+      { "name": "Fresh Sweet Yogurt Cup 450g", "price": 160, "image": "images/yogurt.png" }
+    ]
+  },
+  {
+    "category": "Fresh Fruits",
+    "emoji": "🍎",
+    "themeColor": "#d93b3b",
+    "products": [
+      { "name": "Kala Kulu Apple (1kg)", "price": 340, "image": "images/apple.png" },
+      { "name": "Farm Fresh Bananas (1 Dozen)", "price": 180, "image": "images/banana.png" },
+      { "name": "Kinnow Oranges (1 Dozen)", "price": 250, "image": "images/orange.png" },
+      { "name": "Sundarkhani Grapes (500g)", "price": 380, "image": "images/grapes.png" },
+      { "name": "Chaunsa Sweet Mangoes (1kg)", "price": 420, "image": "images/mango.png" }
+    ]
+  },
+  {
+    "category": "Fresh Vegetables",
+    "emoji": "🥦",
+    "themeColor": "#2f9e44",
+    "products": [
+      { "name": "Fresh Farm Tomatoes (1kg)", "price": 140, "image": "images/tomato.png" },
+      { "name": "Organic Potatoes (1kg)", "price": 90, "image": "images/potato.png" },
+      { "name": "Fresh Onions Red (1kg)", "price": 160, "image": "images/onion.png" },
+      { "name": "Green Chillies Pack 250g", "price": 60, "image": "images/chilli.png" },
+      { "name": "Fresh Green Cucumbers (1kg)", "price": 110, "image": "images/cucumber.png" }
+    ]
+  },
+  {
+    "category": "Rice, Atta & Pulses",
+    "emoji": "🌾",
+    "themeColor": "#b8901f",
+    "products": [
+      { "name": "Guard Basmati Rice (5kg)", "price": 1850, "image": "images/rice.png" },
+      { "name": "Sunridge Chakki Atta (5kg)", "price": 750, "image": "images/atta.png" },
+      { "name": "Daal Chana Premium (1kg)", "price": 290, "image": "images/daal_chana.png" },
+      { "name": "Daal Mong Dhuli (1kg)", "price": 340, "image": "images/daal_mong.png" },
+      { "name": "Red Kidney Beans / Rajma (1kg)", "price": 410, "image": "images/rajma.png" }
+    ]
+  },
+  {
+    "category": "Oils & Spices",
+    "emoji": "🧂",
+    "themeColor": "#e8590c",
+    "products": [
+      { "name": "Dalda Cooking Oil (1 Litre Pouch)", "price": 540, "image": "images/dalda.png" },
+      { "name": "Sufi Banaspati Ghee (1kg)", "price": 510, "image": "images/sufi_ghee.png" },
+      { "name": "National Biryani Masala Double Pack", "price": 160, "image": "images/biryani_masala.png" },
+      { "name": "Shan Korma Recipe Mix", "price": 150, "image": "images/shan_korma.png" },
+      { "name": "National Himalayan Pink Salt 800g", "price": 90, "image": "images/salt.png" }
+    ]
+  },
+  {
+    "category": "Tea & Coffee",
+    "emoji": "☕",
+    "themeColor": "#6f4e37",
+    "products": [
+      { "name": "Tapal Danedar Tea 430g", "price": 690, "image": "images/tapal.png" },
+      { "name": "Lipton Yellow Label Tea 400g", "price": 680, "image": "images/lipton.png" },
+      { "name": "Nescafe Classic Coffee Jar 100g", "price": 920, "image": "images/nescafe.png" },
+      { "name": "Tetley Green Tea Lemon 30 Bags", "price": 380, "image": "images/green_tea.png" },
+      { "name": "Cadbury Hot Chocolate Drink 250g", "price": 590, "image": "images/hot_chocolate.png" }
+    ]
+  },
+  {
+    "category": "Personal Care",
+    "emoji": "🧴",
+    "themeColor": "#7048e8",
+    "products": [
+      { "name": "Head & Shoulders Shampoo 185ml", "price": 460, "image": "images/shampoo.png" },
+      { "name": "Lux Rose Beauty Soap 140g", "price": 130, "image": "images/lux_soap.png" },
+      { "name": "Colgate Total 12 Toothpaste 140g", "price": 280, "image": "images/colgate.png" },
+      { "name": "Dettol Anti-Bacterial Handwash 250ml", "price": 320, "image": "images/dettol.png" },
+      { "name": "Garnier Bright Complete Face Wash 100g", "price": 420, "image": "images/facewash.png" }
+    ]
+  },
+  {
+    "category": "Home & Laundry Care",
+    "emoji": "🧽",
+    "themeColor": "#0ca678",
+    "products": [
+      { "name": "Surf Excel Washing Powder 1kg", "price": 540, "image": "images/surf_excel.png" },
+      { "name": "Ariel Color Protect Powder 1kg", "price": 550, "image": "images/ariel.png" },
+      { "name": "Max Lemon Dishwash Liquid 500ml", "price": 280, "image": "images/max_dishwash.png" },
+      { "name": "Harpic Power Plus Toilet Cleaner 500ml", "price": 310, "image": "images/harpic.png" },
+      { "name": "Rose Petal Pop-up Tissue Box", "price": 190, "image": "images/tissue.png" }
+    ]
+  }
+]
