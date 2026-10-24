@@ -4,7 +4,7 @@
     "emoji": "🍟",
     "themeColor": "#f5b800",
     "products": [
-      { "name": "Lays Masala 65g", "price": 100, "image": "images/lays_masala.png" },
+      { "name": "Lays Masala 65g", "price": 100, "image": "images/FB_IMG_1792753701282.jpg" },
       { "name": "Kurkure Chutney Chaska", "price": 80, "image": "images/kurkure.png" },
       { "name": "Doritos Nacho Cheese", "price": 220, "image": "images/doritos.png" },
       { "name": "Slanty Salted 40g", "price": 60, "image": "images/slanty.png" },
@@ -12,11 +12,11 @@
     ]
   },
   {
-    "category": "Biscuits & Cookies",
+    "category": "Men's Clothing",
     "emoji": "🍪",
     "themeColor": "#c47a2c",
     "products": [
-      { "name": "Chocolatto Cookies", "price": 120, "image": "images/chocolatto.png" },
+      { "name": "Chocolatto Cookies", "price": 120, "image": "images/FB_IMG_1792753701282.jpg" },
       { "name": "Prince Chocolate Biscuit", "price": 70, "image": "images/prince.png" },
       { "name": "Sooper Egg & Milk", "price": 60, "image": "images/sooper.png" },
       { "name": "Tuc Light Salted", "price": 50, "image": "images/tuc.png" },
