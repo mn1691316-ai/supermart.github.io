@@ -43,7 +43,7 @@ canvas{display:block;width:100%;height:100%}
 <div class="pn" id="aisles"></div>
 <div class="pn" id="panel"></div>
 <div id="toast"></div>
-<div id="hint">Shoppers ab ek doosre ko side se rasta dete hain! Checkout 04 par Cash on Delivery karein.</div>
+<div id="hint">JSON Products loaded! Aisles ghoomein aur Checkout 04 par Cash on Delivery karein.</div>
 <div id="bill"><div id="bc"></div></div>
 <button class="tb" id="billBtn" style="display:none">💳 Proceed to Checkout</button>
 <div id="pad">
@@ -53,24 +53,7 @@ canvas{display:block;width:100%;height:100%}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const CATS=[
-['Snacks','🍟','#f5b800',['Chips','Nachos','Popcorn','Namkeen']],
-['Biscuits','🍪','#c47a2c',['Cookies','Cream Biscuit','Rusk','Wafers']],
-['Chocolates','🍫','#6b3f2e',['Dark Bar','Milk Bar','Truffle','Candy']],
-['Juices','🧃','#ff7a1a',['Orange Juice','Mango Juice','Apple Juice','Mixed Fruit']],
-['Drinks','🥤','#2e9be8',['Water','Cola','Lemon Soda','Energy Drink']],
-['Cereals','🥣','#d6336c',['Corn Flakes','Oats','Muesli','Choco Pops']],
-['Bakery','🍞','#a9803f',['Bread','Bun','Cake','Croissant']],
-['Dairy','🥛','#3b82c4',['Milk','Curd','Paneer','Butter']],
-['Fruits','🍎','#d93b3b',['Apple','Banana','Orange','Grapes']],
-['Vegetables','🥦','#2f9e44',['Tomato','Potato','Onion','Broccoli']],
-['Rice & Atta','🌾','#b8901f',['Basmati Rice','Atta','Dal','Poha']],
-['Oils & Spices','🧂','#e8590c',['Cooking Oil','Salt','Masala','Pepper']],
-['Tea & Coffee','☕','#6f4e37',['Tea','Coffee','Green Tea','Cocoa']],
-['Personal Care','🧴','#7048e8',['Shampoo','Soap','Toothpaste','Face Wash']],
-['Home Care','🧽','#0ca678',['Detergent','Dish Wash','Cleaner','Tissue']]
-];
-const VAR=['Classic','Premium','Organic','Value','Special'];
+const VAR=['Classic','Family Pack','Premium','Value','Special'];
 const canvas=document.getElementById('c');
 const R=new THREE.WebGLRenderer({canvas,antialias:true});
 R.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -88,7 +71,7 @@ const dl=new THREE.DirectionalLight('#fffbeb',.65);dl.position.set(4,9,4);S.add(
 const L=m=>new THREE.MeshLambertMaterial(m);
 const box=(w,h,d,mat,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);S.add(m);return m};
 
-// Floor
+// Floor & Room
 const fc=document.createElement('canvas');fc.width=256;fc.height=256;const fx=fc.getContext('2d');
 fx.fillStyle='#e2e8f0';fx.fillRect(0,0,256,256);
 fx.fillStyle='#cbd5e1';for(let i=0;i<120;i++){fx.beginPath();fx.arc(Math.random()*256,Math.random()*256,Math.random()*2.5+1,0,Math.PI*2);fx.fill();}
@@ -98,7 +81,6 @@ fx.strokeStyle='rgba(217,119,6,0.25)';fx.lineWidth=1;fx.strokeRect(2,2,252,252);
 const ft=new THREE.CanvasTexture(fc);ft.wrapS=ft.wrapT=THREE.RepeatWrapping;ft.repeat.set(21/3,24/3);
 box(21,.1,24,L({map:ft,roughness:0.3}),0,-.05,-.5);
 
-// Ceiling
 box(21,.1,24,L({color:'#141721'}),0,3.6,-.5);
 const ledLightMat=new THREE.MeshBasicMaterial({color:'#ffffff'});
 const trackMat=L({color:'#18181b'});
@@ -108,7 +90,6 @@ for(let x=-8;x<=8;x+=4){
   box(.08,.03,19.6,ledLightMat,x,3.35,-.5);
 }
 
-// Walls
 const modernWall=L({color:'#e2e8f0'});
 box(.2,3.6,24,modernWall,-10.5,1.8,-.5);box(.2,3.6,24,modernWall,10.5,1.8,-.5);
 box(21,3.6,.2,modernWall,0,1.8,-12);box(21,3.6,.2,modernWall,0,1.8,11);
@@ -126,18 +107,6 @@ function modernStoreSign(txt,w,h){
 const bs=modernStoreSign('HYPERMART PRIME · CASH ON DELIVERY',8.6,1.3);
 bs.position.set(0,2.6,-11.82);S.add(bs);
 
-function label(name,item,price,col,emo,vi){
- const c=document.createElement('canvas');c.width=112;c.height=140;const x=c.getContext('2d');
- x.fillStyle='#ffffff';x.fillRect(0,0,112,140);
- x.fillStyle=col;x.fillRect(0,0,112,8);
- x.fillStyle='#f8fafc';x.fillRect(0,8,112,78);
- x.font='44px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(emo,56,48);
- x.fillStyle='#64748b';x.font='bold 11px system-ui,sans-serif';x.fillText(name.toUpperCase(),56,98,104);
- x.fillStyle='#0f172a';x.font='bold 13px system-ui,sans-serif';x.fillText(item,56,115,104);
- x.fillStyle='#0284c7';x.font='900 14px system-ui,sans-serif';x.fillText('PKR '+price,56,132);
- return L({map:new THREE.CanvasTexture(c)});
-}
-
 function modernCatSign(txt,w,h){
  const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const x=c.getContext('2d');
  x.fillStyle='rgba(15,23,42,0.95)';x.beginPath();x.roundRect(4,4,c.width-8,c.height-8,14);x.fill();
@@ -147,45 +116,49 @@ function modernCatSign(txt,w,h){
  return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}));
 }
 
-// Shelves
-const PR=[],hits=[],gond=[];
-const geo=new THREE.BoxGeometry(.5,.55,.5);
-const matteBlack=L({color:'#1e2229'});
-const oakShelf=L({color:'#cb9b6d'});
-const ledShelfStrip=new THREE.MeshBasicMaterial({color:'#ffedd5'});
+// DYNAMIC LABEL CREATOR WITH IMAGES/ FOLDER SUPPORT
+function createDynamicProductTexture(name, price, imgPath, fallbackEmoji, color){
+  const c=document.createElement('canvas');c.width=128;c.height=150;const x=c.getContext('2d');
+  const tex=new THREE.CanvasTexture(c);
 
-CATS.forEach((cat,ci)=>{
- const gx=-8+4*Math.floor(ci/3),gz=[4,-1.5,-7][ci%3];
- gond.push({x:gx,z:gz,hx:.95,hz:2.1});
- box(.08,1.85,3.5,matteBlack,gx,.92,gz);
- box(.75,.06,3.5,oakShelf,gx,1.85,gz);
- box(.76,.04,3.5,matteBlack,gx,1.89,gz);
+  function render(img=null){
+    x.fillStyle='#ffffff';x.fillRect(0,0,128,150);
+    x.fillStyle=color||'#0284c7';x.fillRect(0,0,128,10);
 
- [-1,1].forEach(side=>{
-  [.18,.98].forEach((ty,t)=>{
-   box(.56,.04,3.5,oakShelf,gx+side*.33,ty,gz);
-   box(.03,.02,3.48,ledShelfStrip,gx+side*.58,ty-.02,gz);
-   const ii=(side>0?0:2)+t;
-   for(let vi=0;vi<5;vi++){
-    const price=50+((ci*13+ii*17+vi*11)%12)*25,item=cat[3][ii];
-    const id=PR.length;PR.push({n:VAR[vi]+' '+item,p:price,e:cat[1],c:cat[2]});
-    const sm=L({color:cat[2]}),lb=label(VAR[vi],item,price,cat[2],cat[1],vi);
-    const mats=side>0?[lb,sm,sm,sm,sm,sm]:[sm,lb,sm,sm,sm,sm];
-    const m=new THREE.Mesh(geo,mats);m.position.set(gx+side*.33,ty+.3,gz-1.36+vi*.68);m.userData.id=id;S.add(m);hits.push(m);
-   }
-  });
-  const s=modernCatSign(cat[1]+' '+cat[0],3,.52);
-  s.position.set(gx+side*.9,2.5,gz);s.rotation.y=side*Math.PI/2;S.add(s);
- });
-});
+    if(img){
+      try{ x.drawImage(img,14,14,100,75); }
+      catch(e){
+        x.font='44px serif';x.textAlign='center';x.textBaseline='middle';
+        x.fillText(fallbackEmoji||'📦',64,52);
+      }
+    } else {
+      x.font='44px serif';x.textAlign='center';x.textBaseline='middle';
+      x.fillText(fallbackEmoji||'📦',64,52);
+    }
 
-// Trolleys
-const BL=[...gond];
-const metalMat=L({color:'#cbd5e1'});
-const wheelMat=L({color:'#18181b'});
-const handleGripMat=L({color:'#ef4444'});
-const miniItemGeo=new THREE.BoxGeometry(.11,.11,.11);
+    x.fillStyle='#64748b';x.font='bold 11px system-ui,sans-serif';x.textAlign='center';
+    x.fillText(name.slice(0,16),64,106,116);
+    x.fillStyle='#0f172a';x.font='bold 13px system-ui,sans-serif';
+    x.fillText(name.slice(16,32),64,122,116);
+    x.fillStyle='#0284c7';x.font='900 15px system-ui,sans-serif';
+    x.fillText('PKR '+price,64,140);
+    tex.needsUpdate=true;
+  }
 
+  render(null);
+
+  if(imgPath){
+    const img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=()=>render(img);
+    img.onerror=()=>render(null);
+    img.src=imgPath;
+  }
+  return L({map:tex});
+}
+
+// 3D Trolley Builder
+const metalMat=L({color:'#cbd5e1'}),wheelMat=L({color:'#18181b'}),handleGripMat=L({color:'#ef4444'}),miniItemGeo=new THREE.BoxGeometry(.11,.11,.11);
 function createTrolley3D(){
   const tr=new THREE.Group();
   const base=new THREE.Mesh(new THREE.BoxGeometry(.52,.04,.7),metalMat);base.position.set(0,.2,0);tr.add(base);
@@ -212,7 +185,7 @@ function createTrolley3D(){
   return tr;
 }
 
-// Face Textures
+// Pixar Faces
 function createPixarFaceTexture(type, eyeColor, skinTone){
   const fc=document.createElement('canvas');fc.width=512;fc.height=512;const fx=fc.getContext('2d');
   fx.fillStyle=skinTone;fx.fillRect(0,0,512,512);
@@ -244,7 +217,6 @@ function createPixarFaceTexture(type, eyeColor, skinTone){
   return new THREE.CanvasTexture(fc);
 }
 
-// Character Builder
 function buildPixarCharacter(id, name, role, hasTrolley=false){
   const g=new THREE.Group();
   let skinTone='#fcd5b8', eyeColor='#2563eb', hairColor='#2b1810';
@@ -379,10 +351,7 @@ function disp(c,t,col){
 }
 
 const CT=[];
-const marbleMat=L({color:'#f8fafc'});
-const flutedOak=L({color:'#9a6f44'});
-const kickMat=L({color:'#0f172a'});
-
+const marbleMat=L({color:'#f8fafc'}),flutedOak=L({color:'#9a6f44'}),kickMat=L({color:'#0f172a'});
 const counterConfigs=[
   [-7,'CHECKOUT 01',false,'Hamza · Cashier'],
   [-3.5,'CHECKOUT 02',false,'Ayesha · Cashier'],
@@ -412,17 +381,19 @@ counterConfigs.forEach(([x,cname,real,cashierName],idx)=>{
   sp.scale.set(2,.5,1);sp.position.set(x,1.7,8.2);S.add(sp);
 
   const c={x,z,real:!!real,ck,dc,tex,q:[],busy:0,t:0,reset:0};
-  CT.push(c);BL.push({x,z,hx:1.3,hz:.8});disp(c,real?'CHECKOUT 04 · OPEN':'LANE OPEN',col);
+  CT.push(c);
+  disp(c,real?'CHECKOUT 04 · OPEN':'LANE OPEN',col);
 });
 
 // Gates
+const matteBlack=L({color:'#1e2229'});
 [[9.6,'ENTRANCE','#16a34a'],[3,'EXIT','#dc2626']].forEach(([x,t,c])=>{
   const s=modernCatSign(t,2,.48);s.position.set(x,2.8,10.85);s.rotation.y=Math.PI;S.add(s);
   box(1.7,2.4,.06,matteBlack,x,1.2,10.86);
   box(1.5,2.2,.02,new THREE.MeshLambertMaterial({color:'#38bdf8',transparent:true,opacity:0.35}),x,1.2,10.87);
 });
 
-// Player's Trolley
+// Player Trolley
 const TR=new THREE.Group();TR.position.set(0,-.7,-1.1);cam.add(TR);
 [[.7,.04,.5,0,0,0],[.7,.3,.03,0,.15,.25],[.7,.3,.03,0,.15,-.25],[.03,.3,.5,.35,.15,0],[.03,.3,.5,-.35,.15,0],[.74,.04,.05,0,.34,.29],[.04,.6,.04,.3,-.32,.2],[.04,.6,.04,-.3,-.32,.2]].forEach(a=>{
   const m=new THREE.Mesh(new THREE.BoxGeometry(a[0],a[1],a[2]),L({color:'#94a3b8'}));m.position.set(a[3],a[4],a[5]);TR.add(m);
@@ -431,28 +402,18 @@ const TI=[],cg=new THREE.BoxGeometry(.13,.13,.13);
 function trolleyAdd(c){const n=TI.length;if(n>=24)return;const m=new THREE.Mesh(cg,L({color:c}));m.position.set(-.24+(n%4)*.16,.09+Math.floor(n/12)*.14,-.14+(Math.floor(n/4)%3)*.14);m.rotation.y=n;TR.add(m);TI.push(m)}
 function trolleyClear(){TI.forEach(m=>TR.remove(m));TI.length=0}
 
-// ==========================================================
-// REAL TRAFFIC AVOIDANCE SYSTEM (RASTA DENA & NO STOPPING)
-// ==========================================================
+// Safe Navigation System
 const AISLE_X = [-9.6, -6.0, -2.0, 2.0, 6.0, 9.6];
 const CROSS_Z = [6.8, 1.25, -4.25, -9.6];
-
-function getClosest(val, arr){
-  return arr.reduce((prev, curr) => Math.abs(curr - val) < Math.abs(prev - val) ? curr : prev);
-}
+function getClosest(val, arr){return arr.reduce((p,c)=>Math.abs(c-val)<Math.abs(p-val)?c:p)}
 
 function planSafeAislePath(n, targetX, targetZ){
   const startAisleX = getClosest(n.x, AISLE_X);
   const targetAisleX = getClosest(targetX, AISLE_X);
   const crossZ = getClosest(n.z, CROSS_Z);
-  
   const w = [];
-  if(Math.abs(n.z - crossZ) > 0.25){
-    w.push([startAisleX, crossZ]);
-  }
-  if(Math.abs(startAisleX - targetAisleX) > 0.25){
-    w.push([targetAisleX, crossZ]);
-  }
+  if(Math.abs(n.z - crossZ) > 0.25) w.push([startAisleX, crossZ]);
+  if(Math.abs(startAisleX - targetAisleX) > 0.25) w.push([targetAisleX, crossZ]);
   w.push([targetAisleX, targetZ]);
   n.wp = w;
 }
@@ -464,22 +425,107 @@ const roasters=[
   {id:4, name:'Arjun', role:'Customer'}
 ];
 
-const NP=[];
-const qz=i=>6.8-i*1.4;
+const NP=[],qz=i=>6.8-i*1.4;
+
+// GLOBALS FOR PRODUCTS & SHELVES
+let PR=[], hits=[], gond=[];
+const BL=[...counterConfigs.map(c=>({x:c[0],z:8.6,hx:1.3,hz:.8}))];
+
+function buildStoreShelves(categories){
+  const oakShelf=L({color:'#cb9b6d'}),ledShelfStrip=new THREE.MeshBasicMaterial({color:'#ffedd5'}),geo=new THREE.BoxGeometry(.5,.55,.5);
+  const aisles=document.getElementById('aisles');
+  aisles.innerHTML='';
+
+  categories.forEach((cat,ci)=>{
+    const gx=-8+4*Math.floor(ci/3), gz=[4,-1.5,-7][ci%3];
+    gond.push({x:gx,z:gz,hx:.95,hz:2.1});
+    BL.push({x:gx,z:gz,hx:.95,hz:2.1});
+
+    box(.08,1.85,3.5,matteBlack,gx,.92,gz);
+    box(.75,.06,3.5,oakShelf,gx,1.85,gz);
+    box(.76,.04,3.5,matteBlack,gx,1.89,gz);
+
+    [-1,1].forEach(side=>{
+      [.18,.98].forEach((ty,t)=>{
+        box(.56,.04,3.5,oakShelf,gx+side*.33,ty,gz);
+        box(.03,.02,3.48,ledShelfStrip,gx+side*.58,ty-.02,gz);
+
+        const prods = cat.products || [];
+        for(let vi=0;vi<5;vi++){
+          const prod = prods[vi % prods.length] || {name: cat.category+' Item', price: 100, image: ''};
+          const pName = (prods.length > 5 ? '' : VAR[vi]+' ') + prod.name;
+          const pPrice = prod.price || 100;
+          const pImg = prod.image || '';
+
+          const id=PR.length;
+          PR.push({n:pName, p:pPrice, e:cat.emoji||'📦', c:cat.themeColor||'#0284c7'});
+
+          const sm=L({color:cat.themeColor||'#0284c7'});
+          const lb=createDynamicProductTexture(pName, pPrice, pImg, cat.emoji, cat.themeColor);
+          const mats=side>0?[lb,sm,sm,sm,sm,sm]:[sm,lb,sm,sm,sm,sm];
+
+          const m=new THREE.Mesh(geo,mats);
+          m.position.set(gx+side*.33, ty+.3, gz-1.36+vi*.68);
+          m.userData.id=id;
+          S.add(m);
+          hits.push(m);
+        }
+      });
+      const s=modernCatSign((cat.emoji||'🛒')+' '+(cat.category||'Aisle'),3,.52);
+      s.position.set(gx+side*.9,2.5,gz);s.rotation.y=side*Math.PI/2;S.add(s);
+    });
+
+    const b=document.createElement('button');b.textContent=(cat.emoji||'🛒')+' '+(cat.category||'Aisle');
+    b.onclick=()=>{cam.position.set(gx+1.9,1.6,gz);yaw=Math.PI/2;pitch=-.05;closeP()};
+    aisles.appendChild(b);
+  });
+
+  [['💳 Express Checkout 04',6,6.9],['🧾 Checkout Counters',-3.5,6.4]].forEach(([t,x,z])=>{
+    const b=document.createElement('button');b.textContent=t;
+    b.onclick=()=>{cam.position.set(x,1.6,z);yaw=Math.PI;pitch=-.05;closeP()};
+    aisles.appendChild(b);
+  });
+
+  initNpcShoppers();
+}
+
+// Fetch products.json (or Fallback if not loaded)
+fetch('./products.json')
+  .then(res=>{
+    if(!res.ok) throw new Error("JSON not found");
+    return res.json();
+  })
+  .then(data=>{
+    buildStoreShelves(data);
+  })
+  .catch(err=>{
+    console.warn("products.json load failed, using fallback:", err);
+    buildStoreShelves([
+      { category: "Snacks", emoji: "🍟", themeColor: "#f5b800", products: [{name: "Chips", price: 100, image: "images/chips.png"}, {name: "Nachos", price: 180, image: "images/nachos.png"}] },
+      { category: "Drinks", emoji: "🥤", themeColor: "#2e9be8", products: [{name: "Cola Can", price: 120, image: "images/cola.png"}, {name: "Water", price: 80, image: "images/water.png"}] },
+      { category: "Chocolates", emoji: "🍫", themeColor: "#6b3f2e", products: [{name: "Cocoa Bar", price: 200, image: "images/chocolate.png"}] },
+      { category: "Bakery", emoji: "🍞", themeColor: "#a9803f", products: [{name: "Fresh Bread", price: 160, image: "images/bread.png"}] },
+      { category: "Fruits", emoji: "🍎", themeColor: "#d93b3b", products: [{name: "Apples", price: 300, image: "images/apple.png"}] },
+      { category: "Dairy", emoji: "🥛", themeColor: "#3b82c4", products: [{name: "Fresh Milk", price: 250, image: "images/milk.png"}] }
+    ]);
+  });
 
 function nextShelf(n){
-  const k=Math.floor(Math.random()*15);
+  if(!gond.length) return;
+  const k=Math.floor(Math.random()*gond.length);
   const targetGondola = gond[k];
   const sideOffset = (targetGondola.x >= 6) ? -1.6 : 1.6;
   const safeWalkX = targetGondola.x + sideOffset;
   planSafeAislePath(n, safeWalkX, targetGondola.z);
 }
 
-roasters.forEach((ch,i)=>{
-  const g=buildPixarCharacter(ch.id, ch.name, ch.role, true);
-  g.visible=false;S.add(g);
-  NP.push({g,x:9.6,z:10.5,wp:[],st:'wait',t:1+i*2.2,n:0,k:0,sum:0,ct:null,stuckTimer:0,lastX:9.6,lastZ:10.5});
-});
+function initNpcShoppers(){
+  roasters.forEach((ch,i)=>{
+    const g=buildPixarCharacter(ch.id, ch.name, ch.role, true);
+    g.visible=false;S.add(g);
+    NP.push({g,x:9.6,z:10.5,wp:[],st:'wait',t:1+i*2.2,n:0,k:0,sum:0,ct:null,stuckTimer:0,lastX:9.6,lastZ:10.5});
+  });
+}
 
 function npcTick(n,dt,T){
   const g=n.g;
@@ -493,48 +539,31 @@ function npcTick(n,dt,T){
     return;
   }
 
-  // --- DYNAMIC RASTA DENA (SIDE-STEPPING & MUTUAL AVOIDANCE) ---
-  let steerX = 0, steerZ = 0;
-  let speedMultiplier = 1.0;
-
+  let steerX = 0, steerZ = 0, speedMultiplier = 1.0;
   for(const other of NP){
     if(other === n || !other.g.visible) continue;
     const dist = Math.hypot(n.x - other.x, n.z - other.z);
-    
-    // Agar doosra shopper 1.5m ke daira mein hai
     if(dist < 1.5 && dist > 0.05){
-      // Dono ko ek doosre se door thoda side par push karein taake rasta mile
       const pushStrength = (1.5 - dist) * 1.8;
       steerX += ((n.x - other.x) / dist) * pushStrength;
       steerZ += ((n.z - other.z) / dist) * pushStrength;
-
-      // Agar head-on aamne saamne aa rahe hon to right side par steer karein (Right-Hand Rule)
       if(n.wp.length > 0){
         const [tx, tz] = n.wp[0];
         const dot = (tx - n.x)*(other.x - n.x) + (tz - n.z)*(other.z - n.z);
-        if(dot > 0){
-          // Rasta chhorne ke liye side par glide karein
-          steerX += 0.45;
-          speedMultiplier = 0.65; // Thoda slow hokar side se nikal jao
-        }
+        if(dot > 0){ steerX += 0.45; speedMultiplier = 0.65; }
       }
     }
   }
 
-  // Anti-Freeze Watchdog: Agar 1.8s tak ek hi spot par atka rahe to rasta badal do
   const movedDist = Math.hypot(n.x - n.lastX, n.z - n.lastZ);
   if(movedDist < 0.05 * dt){
     n.stuckTimer += dt;
     if(n.stuckTimer > 1.8){
       n.stuckTimer = 0;
-      // Naya rasta le kar nikal jao
       if(n.st === 'shop' || n.st === 'queue') nextShelf(n);
     }
-  } else {
-    n.stuckTimer = 0;
-  }
-  n.lastX = n.x;
-  n.lastZ = n.z;
+  } else { n.stuckTimer = 0; }
+  n.lastX = n.x; n.lastZ = n.z;
 
   let mv = 0;
   if(n.wp.length){
@@ -565,9 +594,9 @@ function npcTick(n,dt,T){
   }
   else if(n.st==='pick'){
     n.t-=dt;
-    if(n.t<=0){
+    if(n.t<=0 && PR.length){
       n.k++;
-      const randomProd=PR[Math.floor(Math.random()*300)];
+      const randomProd=PR[Math.floor(Math.random()*PR.length)];
       n.sum+=randomProd.p;
       g.addTrolleyItem(randomProd.c);
       g.arms[1].rotation.set(-.58,-.15,0);
@@ -650,22 +679,7 @@ function closeP(){panel.style.display='none';aisles.style.display='none'}
 btn.onclick=()=>{const o=panel.style.display==='block';closeP();if(!o)panel.style.display='block'};
 document.getElementById('aBtn').onclick=()=>{const o=aisles.style.display==='grid';closeP();if(!o)aisles.style.display='grid'};
 
-CATS.forEach((c,i)=>{
-  const b=document.createElement('button');b.textContent=c[1]+' '+c[0];
-  b.onclick=()=>{cam.position.set(gond[i].x+1.9,1.6,gond[i].z);yaw=Math.PI/2;pitch=-.05;closeP()};
-  aisles.appendChild(b);
-});
-render();
-
-[['💳 Express Checkout 04',6,6.9],['🧾 Checkout Counters',-3.5,6.4]].forEach(([t,x,z])=>{
-  const b=document.createElement('button');b.textContent=t;
-  b.onclick=()=>{cam.position.set(x,1.6,z);yaw=Math.PI;pitch=-.05;closeP()};
-  aisles.appendChild(b);
-});
-
-// ==========================================================
-// BILLING & CASH ON DELIVERY + PDF DOWNLOAD
-// ==========================================================
+// Billing, Cash on Delivery & PDF Download
 const bill=document.getElementById('bill'),bc=document.getElementById('bc'),billBtn=document.getElementById('billBtn');
 let billTok=0,billNo=94210;
 function closeBill(){billTok++;bill.style.display='none';const r=CT[3];if(r.busy){r.busy=0;disp(r,'CHECKOUT 04 · OPEN','#16a34a')}}
@@ -706,7 +720,7 @@ function generatePdfInvoice(purchasedItems, sub, gst, total, invoiceNumber, date
   doc.setFont('helvetica', 'normal');
   let y = 84;
   purchasedItems.forEach(it => {
-    doc.text(it.n, 18, y);
+    doc.text(it.n.slice(0,30), 18, y);
     doc.text(String(it.q), 112, y);
     doc.text(`${it.p}`, 138, y);
     doc.text(`${it.q * it.p}`, 168, y);
