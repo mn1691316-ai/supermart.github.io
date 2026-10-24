@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HYPERMART PRIME - Smart Superstore</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0f172a;font-family:system-ui,-apple-system,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none;color:#fff}
+canvas{display:block;width:100%;height:100%}
+#top{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none;z-index:10}
+#brand{background:linear-gradient(135deg,#090d16,#1e293b);border:1px solid rgba(255,255,255,0.18);padding:8px 14px;border-radius:14px;font-weight:700;font-size:14px;line-height:1.2;box-shadow:0 8px 24px rgba(0,0,0,0.5);backdrop-filter:blur(10px)}
+#brand small{display:block;font-weight:600;font-size:10px;color:#38bdf8;letter-spacing:0.8px;text-transform:uppercase}
+.tb{pointer-events:auto;background:rgba(15,23,42,0.85);color:#fff;border:1px solid rgba(255,255,255,.2);padding:9px 14px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(0,0,0,0.3);transition:transform .15s}
+.tb:active{transform:scale(0.96)}
+.pn{position:fixed;right:14px;top:calc(env(safe-area-inset-top,0px) + 64px);width:min(320px,88vw);max-height:58%;overflow:auto;background:rgba(15,23,42,.94);border-radius:16px;padding:14px;display:none;z-index:20;box-shadow:0 16px 36px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(14px)}
+.pn .row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #334155;font-size:14px}
+.pn button{border:1px solid #475569;border-radius:10px;font-weight:700;background:#1e293b;color:#fff;padding:10px;cursor:pointer;transition:background .2s}
+.pn button:hover{background:#334155}
+#clr{margin-top:12px;width:100%;background:#ef4444;border-color:#ef4444}
+#aisles{display:none;grid-template-columns:1fr 1fr;gap:8px}
+#toast{position:fixed;left:50%;top:36%;transform:translateX(-50%);background:linear-gradient(135deg,#0284c7,#2563eb);padding:10px 20px;border-radius:24px;font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:30;box-shadow:0 10px 25px rgba(2,132,199,.4)}
+#hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 145px);transform:translateX(-50%);background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.2);padding:9px 18px;border-radius:16px;font-size:13px;text-align:center;pointer-events:none;transition:opacity 1s;width:max-content;max-width:88vw;z-index:10;backdrop-filter:blur(8px)}
+#pad{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(2,56px);gap:6px;z-index:10}
+#pad div{background:rgba(15,23,42,.75);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;touch-action:none;user-select:none;backdrop-filter:blur(8px)}
+#pad div:active{background:#38bdf8;color:#0f172a}
+#bill{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;z-index:50;backdrop-filter:blur(6px)}
+#bc{background:#ffffff;color:#0f172a;border-radius:18px;width:min(350px,100%);max-height:82%;overflow:auto;padding:18px;font-size:14px;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+#bc .r{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #cbd5e1}
+#bc button{background:#0f172a;color:#fff;border:0;border-radius:10px;padding:11px 14px;font-weight:700;margin:8px 4px 0 0;cursor:pointer}
+#billBtn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 30px);font-size:15px;padding:14px 20px;z-index:10;background:linear-gradient(135deg,#16a34a,#15803d);border:none;box-shadow:0 8px 24px rgba(22,163,74,0.4)}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="top">
+  <div id="brand">🏪 HYPERMART PRIME<small>Cash on Delivery · Smart Mart</small></div>
+  <div>
+    <button class="tb" id="aBtn">📍 Store Directory</button> 
+    <button class="tb" id="cartBtn">🛒 0 · PKR 0</button>
+  </div>
+</div>
+<div class="pn" id="aisles"></div>
+<div class="pn" id="panel"></div>
+<div id="toast"></div>
+<div id="hint">Shoppers ab ek doosre ko side se rasta dete hain! Checkout 04 par Cash on Delivery karein.</div>
+<div id="bill"><div id="bc"></div></div>
+<button class="tb" id="billBtn" style="display:none">💳 Proceed to Checkout</button>
+<div id="pad">
+  <div></div><div data-k="f">▲</div><div></div>
+  <div data-k="l">◀</div><div data-k="b">▼</div><div data-k="r">▶</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const CATS=[
+['Snacks','🍟','#f5b800',['Chips','Nachos','Popcorn','Namkeen']],
+['Biscuits','🍪','#c47a2c',['Cookies','Cream Biscuit','Rusk','Wafers']],
+['Chocolates','🍫','#6b3f2e',['Dark Bar','Milk Bar','Truffle','Candy']],
+['Juices','🧃','#ff7a1a',['Orange Juice','Mango Juice','Apple Juice','Mixed Fruit']],
+['Drinks','🥤','#2e9be8',['Water','Cola','Lemon Soda','Energy Drink']],
+['Cereals','🥣','#d6336c',['Corn Flakes','Oats','Muesli','Choco Pops']],
+['Bakery','🍞','#a9803f',['Bread','Bun','Cake','Croissant']],
+['Dairy','🥛','#3b82c4',['Milk','Curd','Paneer','Butter']],
+['Fruits','🍎','#d93b3b',['Apple','Banana','Orange','Grapes']],
+['Vegetables','🥦','#2f9e44',['Tomato','Potato','Onion','Broccoli']],
+['Rice & Atta','🌾','#b8901f',['Basmati Rice','Atta','Dal','Poha']],
+['Oils & Spices','🧂','#e8590c',['Cooking Oil','Salt','Masala','Pepper']],
+['Tea & Coffee','☕','#6f4e37',['Tea','Coffee','Green Tea','Cocoa']],
+['Personal Care','🧴','#7048e8',['Shampoo','Soap','Toothpaste','Face Wash']],
+['Home Care','🧽','#0ca678',['Detergent','Dish Wash','Cleaner','Tissue']]
+];
+const VAR=['Classic','Premium','Organic','Value','Special'];
+const canvas=document.getElementById('c');
+const R=new THREE.WebGLRenderer({canvas,antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+
+const S=new THREE.Scene();
+S.background=new THREE.Color('#1a1f2c');
+S.fog=new THREE.Fog('#1a1f2c',12,38);
+const cam=new THREE.PerspectiveCamera(70,1,.1,70);cam.rotation.order='YXZ';cam.position.set(3,1.6,6.4);S.add(cam);
+
+function resize(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+
+S.add(new THREE.HemisphereLight('#f8fafc','#1e293b',1.05));
+const dl=new THREE.DirectionalLight('#fffbeb',.65);dl.position.set(4,9,4);S.add(dl);
+const L=m=>new THREE.MeshLambertMaterial(m);
+const box=(w,h,d,mat,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);S.add(m);return m};
+
+// Floor
+const fc=document.createElement('canvas');fc.width=256;fc.height=256;const fx=fc.getContext('2d');
+fx.fillStyle='#e2e8f0';fx.fillRect(0,0,256,256);
+fx.fillStyle='#cbd5e1';for(let i=0;i<120;i++){fx.beginPath();fx.arc(Math.random()*256,Math.random()*256,Math.random()*2.5+1,0,Math.PI*2);fx.fill();}
+fx.fillStyle='#94a3b8';for(let i=0;i<60;i++){fx.beginPath();fx.arc(Math.random()*256,Math.random()*256,Math.random()*1.8+0.5,0,Math.PI*2);fx.fill();}
+fx.strokeStyle='rgba(15,23,42,0.12)';fx.lineWidth=3;fx.strokeRect(0,0,256,256);
+fx.strokeStyle='rgba(217,119,6,0.25)';fx.lineWidth=1;fx.strokeRect(2,2,252,252);
+const ft=new THREE.CanvasTexture(fc);ft.wrapS=ft.wrapT=THREE.RepeatWrapping;ft.repeat.set(21/3,24/3);
+box(21,.1,24,L({map:ft,roughness:0.3}),0,-.05,-.5);
+
+// Ceiling
+box(21,.1,24,L({color:'#141721'}),0,3.6,-.5);
+const ledLightMat=new THREE.MeshBasicMaterial({color:'#ffffff'});
+const trackMat=L({color:'#18181b'});
+for(let x=-8;x<=8;x+=4){
+  box(.12,.08,20,trackMat,x,3.4,-.5);
+  for(let z=-8;z<=8;z+=5.5) box(.015,.2,.015,L({color:'#71717a'}),x,3.5,z);
+  box(.08,.03,19.6,ledLightMat,x,3.35,-.5);
+}
+
+// Walls
+const modernWall=L({color:'#e2e8f0'});
+box(.2,3.6,24,modernWall,-10.5,1.8,-.5);box(.2,3.6,24,modernWall,10.5,1.8,-.5);
+box(21,3.6,.2,modernWall,0,1.8,-12);box(21,3.6,.2,modernWall,0,1.8,11);
+const woodMat=L({color:'#b48356'});
+for(let wx=-9;wx<=9;wx+=0.3) box(.14,3.6,.04,woodMat,wx,1.8,-11.88);
+
+function modernStoreSign(txt,w,h){
+ const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*h/w);const x=c.getContext('2d');
+ x.fillStyle='#0f172a';x.fillRect(0,0,c.width,c.height);
+ x.strokeStyle='#38bdf8';x.lineWidth=8;x.strokeRect(6,6,c.width-12,c.height-12);
+ x.fillStyle='#ffffff';x.font='900 64px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';
+ x.letterSpacing='3px';x.fillText(txt,c.width/2,c.height/2);
+ return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}));
+}
+const bs=modernStoreSign('HYPERMART PRIME · CASH ON DELIVERY',8.6,1.3);
+bs.position.set(0,2.6,-11.82);S.add(bs);
+
+function label(name,item,price,col,emo,vi){
+ const c=document.createElement('canvas');c.width=112;c.height=140;const x=c.getContext('2d');
+ x.fillStyle='#ffffff';x.fillRect(0,0,112,140);
+ x.fillStyle=col;x.fillRect(0,0,112,8);
+ x.fillStyle='#f8fafc';x.fillRect(0,8,112,78);
+ x.font='44px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(emo,56,48);
+ x.fillStyle='#64748b';x.font='bold 11px system-ui,sans-serif';x.fillText(name.toUpperCase(),56,98,104);
+ x.fillStyle='#0f172a';x.font='bold 13px system-ui,sans-serif';x.fillText(item,56,115,104);
+ x.fillStyle='#0284c7';x.font='900 14px system-ui,sans-serif';x.fillText('PKR '+price,56,132);
+ return L({map:new THREE.CanvasTexture(c)});
+}
+
+function modernCatSign(txt,w,h){
+ const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const x=c.getContext('2d');
+ x.fillStyle='rgba(15,23,42,0.95)';x.beginPath();x.roundRect(4,4,c.width-8,c.height-8,14);x.fill();
+ x.strokeStyle='#38bdf8';x.lineWidth=4;x.stroke();
+ x.fillStyle='#ffffff';x.font='bold 40px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';
+ x.fillText(txt,c.width/2,c.height/2,480);
+ return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}));
+}
+
+// Shelves
+const PR=[],hits=[],gond=[];
+const geo=new THREE.BoxGeometry(.5,.55,.5);
+const matteBlack=L({color:'#1e2229'});
+const oakShelf=L({color:'#cb9b6d'});
+const ledShelfStrip=new THREE.MeshBasicMaterial({color:'#ffedd5'});
+
+CATS.forEach((cat,ci)=>{
+ const gx=-8+4*Math.floor(ci/3),gz=[4,-1.5,-7][ci%3];
+ gond.push({x:gx,z:gz,hx:.95,hz:2.1});
+ box(.08,1.85,3.5,matteBlack,gx,.92,gz);
+ box(.75,.06,3.5,oakShelf,gx,1.85,gz);
+ box(.76,.04,3.5,matteBlack,gx,1.89,gz);
+
+ [-1,1].forEach(side=>{
+  [.18,.98].forEach((ty,t)=>{
+   box(.56,.04,3.5,oakShelf,gx+side*.33,ty,gz);
+   box(.03,.02,3.48,ledShelfStrip,gx+side*.58,ty-.02,gz);
+   const ii=(side>0?0:2)+t;
+   for(let vi=0;vi<5;vi++){
+    const price=50+((ci*13+ii*17+vi*11)%12)*25,item=cat[3][ii];
+    const id=PR.length;PR.push({n:VAR[vi]+' '+item,p:price,e:cat[1],c:cat[2]});
+    const sm=L({color:cat[2]}),lb=label(VAR[vi],item,price,cat[2],cat[1],vi);
+    const mats=side>0?[lb,sm,sm,sm,sm,sm]:[sm,lb,sm,sm,sm,sm];
+    const m=new THREE.Mesh(geo,mats);m.position.set(gx+side*.33,ty+.3,gz-1.36+vi*.68);m.userData.id=id;S.add(m);hits.push(m);
+   }
+  });
+  const s=modernCatSign(cat[1]+' '+cat[0],3,.52);
+  s.position.set(gx+side*.9,2.5,gz);s.rotation.y=side*Math.PI/2;S.add(s);
+ });
+});
+
+// Trolleys
+const BL=[...gond];
+const metalMat=L({color:'#cbd5e1'});
+const wheelMat=L({color:'#18181b'});
+const handleGripMat=L({color:'#ef4444'});
+const miniItemGeo=new THREE.BoxGeometry(.11,.11,.11);
+
+function createTrolley3D(){
+  const tr=new THREE.Group();
+  const base=new THREE.Mesh(new THREE.BoxGeometry(.52,.04,.7),metalMat);base.position.set(0,.2,0);tr.add(base);
+  [[-.22,.08,-.26],[.22,.08,-.26],[-.22,.08,.26],[.22,.08,.26]].forEach(([wx,wy,wz])=>{
+    const w=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.04,10),wheelMat);
+    w.rotation.z=Math.PI/2;w.position.set(wx,wy,wz);tr.add(w);
+  });
+  [[-.22,.48,-.28],[.22,.48,-.28],[-.22,.48,.28],[.22,.48,.28]].forEach(([lx,ly,lz])=>{
+    const leg=new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.55),metalMat);leg.position.set(lx,ly,lz);tr.add(leg);
+  });
+  const basketMat=new THREE.MeshLambertMaterial({color:'#94a3b8',wireframe:true});
+  const basket=new THREE.Mesh(new THREE.BoxGeometry(.54,.42,.72),basketMat);basket.position.set(0,.55,0);tr.add(basket);
+  const basketBottom=new THREE.Mesh(new THREE.BoxGeometry(.52,.02,.7),metalMat);basketBottom.position.set(0,.35,0);tr.add(basketBottom);
+
+  const handleBar=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.52),handleGripMat);
+  handleBar.rotation.z=Math.PI/2;handleBar.position.set(0,.82,-.37);tr.add(handleBar);
+  [-.22,.22].forEach(hx=>{
+    const sup=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,.2),metalMat);
+    sup.position.set(hx,.74,-.36);sup.rotation.x=.35;tr.add(sup);
+  });
+
+  tr.itemsGroup=new THREE.Group();tr.itemsGroup.position.set(0,.38,0);tr.add(tr.itemsGroup);
+  tr.itemsCount=0;
+  return tr;
+}
+
+// Face Textures
+function createPixarFaceTexture(type, eyeColor, skinTone){
+  const fc=document.createElement('canvas');fc.width=512;fc.height=512;const fx=fc.getContext('2d');
+  fx.fillStyle=skinTone;fx.fillRect(0,0,512,512);
+  const blush=fx.createRadialGradient(90,320,10,90,320,70);blush.addColorStop(0,'rgba(244,114,182,0.4)');blush.addColorStop(1,'rgba(244,114,182,0)');
+  fx.fillStyle=blush;fx.beginPath();fx.arc(90,320,70,0,Math.PI*2);fx.fill();
+  const blush2=fx.createRadialGradient(422,320,10,422,320,70);blush2.addColorStop(0,'rgba(244,114,182,0.4)');blush2.addColorStop(1,'rgba(244,114,182,0)');
+  fx.fillStyle=blush2;fx.beginPath();fx.arc(422,320,70,0,Math.PI*2);fx.fill();
+
+  if(type==='girl'){
+    fx.fillStyle='rgba(161,98,7,0.35)';
+    [70,85,100,412,427,442,240,256,272].forEach((px,i)=>{fx.beginPath();fx.arc(px,315+((i%3)*6),2.2,0,Math.PI*2);fx.fill();});
+  }
+  fx.fillStyle='#2b1810';fx.lineWidth=10;fx.lineCap='round';
+  fx.beginPath();fx.moveTo(80,160);fx.quadraticCurveTo(150,135,200,165);fx.stroke();
+  fx.beginPath();fx.moveTo(312,165);fx.quadraticCurveTo(362,135,432,160);fx.stroke();
+  fx.fillStyle='#ffffff';
+  fx.beginPath();fx.ellipse(145,225,58,48,0,0,Math.PI*2);fx.fill();
+  fx.beginPath();fx.ellipse(367,225,58,48,0,0,Math.PI*2);fx.fill();
+  fx.fillStyle=eyeColor;
+  fx.beginPath();fx.arc(150,225,32,0,Math.PI*2);fx.arc(362,225,32,0,Math.PI*2);fx.fill();
+  fx.fillStyle='#0f172a';
+  fx.beginPath();fx.arc(150,225,18,0,Math.PI*2);fx.arc(362,225,18,0,Math.PI*2);fx.fill();
+  fx.fillStyle='#ffffff';
+  fx.beginPath();fx.arc(140,215,9,0,Math.PI*2);fx.arc(352,215,9,0,Math.PI*2);fx.fill();
+  fx.fillStyle='rgba(180,83,9,0.25)';
+  fx.beginPath();fx.ellipse(256,310,14,8,0,0,Math.PI*2);fx.fill();
+  fx.strokeStyle='#9f1239';fx.lineWidth=7;fx.beginPath();
+  fx.arc(256,365,36,0.15*Math.PI,0.85*Math.PI);fx.stroke();
+  return new THREE.CanvasTexture(fc);
+}
+
+// Character Builder
+function buildPixarCharacter(id, name, role, hasTrolley=false){
+  const g=new THREE.Group();
+  let skinTone='#fcd5b8', eyeColor='#2563eb', hairColor='#2b1810';
+  let shirtColor='#3b82f6', pantsColor='#1e293b', shoeColor='#ffffff';
+
+  if(id===1){ skinTone='#fbd2a4';eyeColor='#1e293b';hairColor='#18181b';shirtColor='#eab308';pantsColor='#18181b';shoeColor='#f97316';}
+  else if(id===2){ skinTone='#fed7aa';eyeColor='#0284c7';hairColor='#451a03';shirtColor='#ef4444';pantsColor='#3b82f6';shoeColor='#ffffff';}
+  else if(id===3){ skinTone='#fde2d0';eyeColor='#059669';hairColor='#1e293b';shirtColor='#84a98c';pantsColor='#52796f';shoeColor='#f472b6';}
+  else if(id===4){ skinTone='#fed7aa';eyeColor='#0f172a';hairColor='#5c3a21';shirtColor='#38bdf8';pantsColor='#2563eb';shoeColor='#ffffff';}
+
+  const skinMat=L({color:skinTone}),shirtMat=L({color:shirtColor}),pantsMat=L({color:pantsColor}),shoesMat=L({color:shoeColor}),hairMat=L({color:hairColor});
+  const faceTex=createPixarFaceTexture(id===3?'girl':'boy', eyeColor, skinTone);
+  const faceMat=new THREE.MeshLambertMaterial({map:faceTex});
+
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.075,.085,.16,12),skinMat);neck.position.set(0,1.35,0);g.add(neck);
+  const headGeo=new THREE.CylinderGeometry(.19,.16,.36,16);
+  const headMats=[skinMat,skinMat,faceMat,skinMat,skinMat,skinMat];
+  const head=new THREE.Mesh(headGeo,headMats);
+  head.position.set(0,1.55,0);head.rotation.y=Math.PI/2;g.add(head);
+
+  if(id===1){
+    const hairBase=new THREE.Mesh(new THREE.SphereGeometry(.22,14,10,0,Math.PI*2,0,Math.PI/1.7),hairMat);hairBase.position.set(0,1.66,-.02);g.add(hairBase);
+    for(let i=0;i<7;i++){
+      const spike=new THREE.Mesh(new THREE.ConeGeometry(.06,.18,6),hairMat);
+      spike.position.set(-.1+i*.035,1.82+.01*(i%2),-.04+Math.sin(i)*.03);spike.rotation.x=.3;g.add(spike);
+    }
+    const gm=L({color:'#09090b'});
+    const rimL=new THREE.Mesh(new THREE.BoxGeometry(.15,.12,.03),gm);rimL.position.set(-.09,1.56,.19);g.add(rimL);
+    const rimR=new THREE.Mesh(new THREE.BoxGeometry(.15,.12,.03),gm);rimR.position.set(.09,1.56,.19);g.add(rimR);
+    const bridge=new THREE.Mesh(new THREE.BoxGeometry(.06,.02,.02),gm);bridge.position.set(0,1.58,.19);g.add(bridge);
+  } else if(id===2){
+    const hair=new THREE.Mesh(new THREE.SphereGeometry(.22,14,12,0,Math.PI*2,0,Math.PI/1.7),hairMat);hair.position.set(0,1.65,-.01);hair.rotation.z=-.2;g.add(hair);
+  } else if(id===3){
+    const hairTop=new THREE.Mesh(new THREE.SphereGeometry(.24,16,14,0,Math.PI*2,0,Math.PI/1.6),hairMat);hairTop.position.set(0,1.66,-.02);g.add(hairTop);
+    const hairBack=new THREE.Mesh(new THREE.CylinderGeometry(.12,.22,.65,10),hairMat);hairBack.position.set(0,1.3,-.18);hairBack.rotation.x=.35;g.add(hairBack);
+  } else if(id===4){
+    const hairBase=new THREE.Mesh(new THREE.SphereGeometry(.23,14,12,0,Math.PI*2,0,Math.PI/1.65),hairMat);hairBase.position.set(0,1.66,-.01);g.add(hairBase);
+    for(let f=0;f<8;f++){
+      const curl=new THREE.Mesh(new THREE.DodecahedronGeometry(.065),hairMat);
+      curl.position.set(-.12+f*.035,1.79+Math.sin(f)*.02,.02);g.add(curl);
+    }
+  }
+
+  const chest=new THREE.Mesh(new THREE.BoxGeometry(.46,.45,.28),shirtMat);chest.position.set(0,1.12,0);g.add(chest);
+  g.chestRef=chest;
+
+  if(id===1){
+    const inner=new THREE.Mesh(new THREE.BoxGeometry(.18,.45,.02),L({color:'#0f172a'}));inner.position.set(0,1.12,.14);g.add(inner);
+    const stringL=new THREE.Mesh(new THREE.CylinderGeometry(.01,.01,.18),L({color:'#ef4444'}));stringL.position.set(-.05,1.06,.16);g.add(stringL);
+    const stringR=new THREE.Mesh(new THREE.CylinderGeometry(.01,.01,.18),L({color:'#ef4444'}));stringR.position.set(.05,1.06,.16);g.add(stringR);
+  } else if(id===2){
+    const collar=new THREE.Mesh(new THREE.TorusGeometry(.11,.02,8,16),L({color:'#ffffff'}));collar.position.set(0,1.33,0);collar.rotation.x=Math.PI/2;g.add(collar);
+  } else if(id===3){
+    const btn=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.02,12),L({color:'#3f2e18'}));btn.position.set(0,1.12,.15);btn.rotation.x=Math.PI/2;g.add(btn);
+  } else if(id===4){
+    const pocket=new THREE.Mesh(new THREE.BoxGeometry(.26,.14,.04),L({color:'#0284c7'}));pocket.position.set(0,.98,.14);g.add(pocket);
+  }
+  const waist=new THREE.Mesh(new THREE.BoxGeometry(.4,.18,.26),pantsMat);waist.position.set(0,.83,0);g.add(waist);
+
+  g.arms=[-1,1].map(side=>{
+    const shoulder=new THREE.Group();shoulder.position.set(side*.26,1.26,0);
+    const armMesh=new THREE.Mesh(new THREE.CylinderGeometry(.065,.055,.44,10),shirtMat);armMesh.position.set(0,-.2,0);shoulder.add(armMesh);
+    const hand=new THREE.Mesh(new THREE.SphereGeometry(.06,8,8),skinMat);hand.position.set(0,-.44,0);shoulder.add(hand);
+    g.add(shoulder);return shoulder;
+  });
+
+  if(hasTrolley){
+    g.arms[0].rotation.set(-.58,.15,0);
+    g.arms[1].rotation.set(-.58,-.15,0);
+  }
+
+  g.legs=[-1,1].map(side=>{
+    const hip=new THREE.Group();hip.position.set(side*.125,.74,0);
+    const legMesh=new THREE.Mesh(new THREE.CylinderGeometry(.08,.07,.62,10),pantsMat);legMesh.position.set(0,-.31,0);hip.add(legMesh);
+    const shoe=new THREE.Mesh(new THREE.BoxGeometry(.135,.1,.26),shoesMat);shoe.position.set(0,-.64,.04);hip.add(shoe);
+    const sole=new THREE.Mesh(new THREE.BoxGeometry(.14,.035,.27),L({color:'#ffffff'}));sole.position.set(0,-.69,.04);hip.add(sole);
+    g.add(hip);return hip;
+  });
+
+  if(hasTrolley){
+    const trolley=createTrolley3D();
+    trolley.position.set(0,0,.68);
+    g.add(trolley);
+    g.trolley=trolley;
+
+    g.addTrolleyItem=function(itemColor){
+      if(trolley.itemsCount>=18)return;
+      const n=trolley.itemsCount;
+      const im=new THREE.Mesh(miniItemGeo,L({color:itemColor}));
+      im.position.set(-.14+(n%3)*.14, .06+Math.floor(n/6)*.12, -.18+(Math.floor((n%6)/3))*.2);
+      im.rotation.set(Math.random()*.2,n*.5,0);
+      trolley.itemsGroup.add(im);
+      trolley.itemsCount++;
+    };
+    g.clearTrolley=function(){
+      while(trolley.itemsGroup.children.length>0) trolley.itemsGroup.remove(trolley.itemsGroup.children[0]);
+      trolley.itemsCount=0;
+    };
+  }
+
+  const tc=document.createElement('canvas');tc.width=256;tc.height=68;const tx=tc.getContext('2d');
+  tx.fillStyle='rgba(15,23,42,0.85)';tx.beginPath();tx.roundRect(4,4,248,60,12);tx.fill();
+  tx.strokeStyle='#38bdf8';tx.lineWidth=2;tx.stroke();
+  tx.fillStyle='#fff';tx.font='bold 24px system-ui,sans-serif';tx.textAlign='center';tx.fillText(name,128,30);
+  tx.fillStyle='#38bdf8';tx.font='15px system-ui,sans-serif';tx.fillText(role,128,52);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(tc),transparent:true}));
+  sp.scale.set(1.4,.38,1);sp.position.y=2.15;g.add(sp);g.tag=sp;
+
+  return g;
+}
+
+function animateTrolleyPush(g,T,isMoving){
+  if(isMoving){
+    const s=Math.sin(T*8.5)*.62;
+    g.legs[0].rotation.x=s;g.legs[1].rotation.x=-s;
+    g.arms[0].rotation.x=-.58+Math.sin(T*8.5)*.04;
+    g.arms[1].rotation.x=-.58-Math.sin(T*8.5)*.04;
+    g.position.y=Math.abs(Math.sin(T*8.5))*.03;
+  } else {
+    g.legs[0].rotation.x=0;g.legs[1].rotation.x=0;
+    g.arms[0].rotation.x=-.58;g.arms[1].rotation.x=-.58;
+    g.chestRef.scale.y=1+Math.sin(T*2.5)*.02;
+    g.position.y=0;
+  }
+}
+
+// Counters
+function disp(c,t,col){
+  const x=c.dc.getContext('2d');x.clearRect(0,0,256,64);x.fillStyle=col;x.fillRect(4,4,248,56);
+  x.fillStyle='#fff';x.font='900 24px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';
+  x.fillText(t,128,34,236);c.tex.needsUpdate=true;
+}
+
+const CT=[];
+const marbleMat=L({color:'#f8fafc'});
+const flutedOak=L({color:'#9a6f44'});
+const kickMat=L({color:'#0f172a'});
+
+const counterConfigs=[
+  [-7,'CHECKOUT 01',false,'Hamza · Cashier'],
+  [-3.5,'CHECKOUT 02',false,'Ayesha · Cashier'],
+  [0,'CHECKOUT 03',false,'Bilal · Cashier'],
+  [6,'CHECKOUT 04 · EXPRESS',true,'Max · Senior Cashier']
+];
+
+counterConfigs.forEach(([x,cname,real,cashierName],idx)=>{
+  const z=8.6,col=real?'#16a34a':'#0284c7';
+  box(2.4,.86,.88,flutedOak,x,.43,z);
+  box(2.4,.08,.84,kickMat,x,.04,z);
+  box(2.38,.02,.86,new THREE.MeshBasicMaterial({color:'#fde047'}),x,.08,z);
+  box(2.5,.08,1.02,marbleMat,x,.89,z);
+  box(.08,.89,1.02,marbleMat,x-1.21,.45,z);
+  box(1.2,.02,.4,L({color:'#18181b'}),x-.2,.94,z-.12);
+  const scr=box(.38,.24,.03,L({color:'#09090b'}),x+.8,1.15,z+.15);scr.rotation.x=-.32;
+  box(.06,.2,.06,L({color:'#52525b'}),x+.8,1,z+.12);
+
+  const sg=modernCatSign(cname,2.6,.48);sg.position.set(x,2.6,z);sg.rotation.y=Math.PI;S.add(sg);
+  
+  const ck=buildPixarCharacter(idx===3?1:(idx===2?2:4), cashierName, 'Store Associate', false);
+  ck.position.set(x,0,9.6);ck.rotation.y=Math.PI;S.add(ck);
+
+  const dc=document.createElement('canvas');dc.width=256;dc.height=64;
+  const tex=new THREE.CanvasTexture(dc);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));
+  sp.scale.set(2,.5,1);sp.position.set(x,1.7,8.2);S.add(sp);
+
+  const c={x,z,real:!!real,ck,dc,tex,q:[],busy:0,t:0,reset:0};
+  CT.push(c);BL.push({x,z,hx:1.3,hz:.8});disp(c,real?'CHECKOUT 04 · OPEN':'LANE OPEN',col);
+});
+
+// Gates
+[[9.6,'ENTRANCE','#16a34a'],[3,'EXIT','#dc2626']].forEach(([x,t,c])=>{
+  const s=modernCatSign(t,2,.48);s.position.set(x,2.8,10.85);s.rotation.y=Math.PI;S.add(s);
+  box(1.7,2.4,.06,matteBlack,x,1.2,10.86);
+  box(1.5,2.2,.02,new THREE.MeshLambertMaterial({color:'#38bdf8',transparent:true,opacity:0.35}),x,1.2,10.87);
+});
+
+// Player's Trolley
+const TR=new THREE.Group();TR.position.set(0,-.7,-1.1);cam.add(TR);
+[[.7,.04,.5,0,0,0],[.7,.3,.03,0,.15,.25],[.7,.3,.03,0,.15,-.25],[.03,.3,.5,.35,.15,0],[.03,.3,.5,-.35,.15,0],[.74,.04,.05,0,.34,.29],[.04,.6,.04,.3,-.32,.2],[.04,.6,.04,-.3,-.32,.2]].forEach(a=>{
+  const m=new THREE.Mesh(new THREE.BoxGeometry(a[0],a[1],a[2]),L({color:'#94a3b8'}));m.position.set(a[3],a[4],a[5]);TR.add(m);
+});
+const TI=[],cg=new THREE.BoxGeometry(.13,.13,.13);
+function trolleyAdd(c){const n=TI.length;if(n>=24)return;const m=new THREE.Mesh(cg,L({color:c}));m.position.set(-.24+(n%4)*.16,.09+Math.floor(n/12)*.14,-.14+(Math.floor(n/4)%3)*.14);m.rotation.y=n;TR.add(m);TI.push(m)}
+function trolleyClear(){TI.forEach(m=>TR.remove(m));TI.length=0}
+
+// ==========================================================
+// REAL TRAFFIC AVOIDANCE SYSTEM (RASTA DENA & NO STOPPING)
+// ==========================================================
+const AISLE_X = [-9.6, -6.0, -2.0, 2.0, 6.0, 9.6];
+const CROSS_Z = [6.8, 1.25, -4.25, -9.6];
+
+function getClosest(val, arr){
+  return arr.reduce((prev, curr) => Math.abs(curr - val) < Math.abs(prev - val) ? curr : prev);
+}
+
+function planSafeAislePath(n, targetX, targetZ){
+  const startAisleX = getClosest(n.x, AISLE_X);
+  const targetAisleX = getClosest(targetX, AISLE_X);
+  const crossZ = getClosest(n.z, CROSS_Z);
+  
+  const w = [];
+  if(Math.abs(n.z - crossZ) > 0.25){
+    w.push([startAisleX, crossZ]);
+  }
+  if(Math.abs(startAisleX - targetAisleX) > 0.25){
+    w.push([targetAisleX, crossZ]);
+  }
+  w.push([targetAisleX, targetZ]);
+  n.wp = w;
+}
+
+const roasters=[
+  {id:1, name:'Max', role:'Customer'},
+  {id:2, name:'Leo', role:'Customer'},
+  {id:3, name:'Maya', role:'Customer'},
+  {id:4, name:'Arjun', role:'Customer'}
+];
+
+const NP=[];
+const qz=i=>6.8-i*1.4;
+
+function nextShelf(n){
+  const k=Math.floor(Math.random()*15);
+  const targetGondola = gond[k];
+  const sideOffset = (targetGondola.x >= 6) ? -1.6 : 1.6;
+  const safeWalkX = targetGondola.x + sideOffset;
+  planSafeAislePath(n, safeWalkX, targetGondola.z);
+}
+
+roasters.forEach((ch,i)=>{
+  const g=buildPixarCharacter(ch.id, ch.name, ch.role, true);
+  g.visible=false;S.add(g);
+  NP.push({g,x:9.6,z:10.5,wp:[],st:'wait',t:1+i*2.2,n:0,k:0,sum:0,ct:null,stuckTimer:0,lastX:9.6,lastZ:10.5});
+});
+
+function npcTick(n,dt,T){
+  const g=n.g;
+  if(n.st==='wait'){
+    n.t-=dt;
+    if(n.t<=0){
+      n.st='shop';n.n=2+Math.floor(Math.random()*3);n.k=0;n.sum=0;
+      g.visible=true;g.clearTrolley();n.x=9.6;n.z=10.5;g.position.set(n.x,0,n.z);
+      nextShelf(n);
+    }
+    return;
+  }
+
+  // --- DYNAMIC RASTA DENA (SIDE-STEPPING & MUTUAL AVOIDANCE) ---
+  let steerX = 0, steerZ = 0;
+  let speedMultiplier = 1.0;
+
+  for(const other of NP){
+    if(other === n || !other.g.visible) continue;
+    const dist = Math.hypot(n.x - other.x, n.z - other.z);
+    
+    // Agar doosra shopper 1.5m ke daira mein hai
+    if(dist < 1.5 && dist > 0.05){
+      // Dono ko ek doosre se door thoda side par push karein taake rasta mile
+      const pushStrength = (1.5 - dist) * 1.8;
+      steerX += ((n.x - other.x) / dist) * pushStrength;
+      steerZ += ((n.z - other.z) / dist) * pushStrength;
+
+      // Agar head-on aamne saamne aa rahe hon to right side par steer karein (Right-Hand Rule)
+      if(n.wp.length > 0){
+        const [tx, tz] = n.wp[0];
+        const dot = (tx - n.x)*(other.x - n.x) + (tz - n.z)*(other.z - n.z);
+        if(dot > 0){
+          // Rasta chhorne ke liye side par glide karein
+          steerX += 0.45;
+          speedMultiplier = 0.65; // Thoda slow hokar side se nikal jao
+        }
+      }
+    }
+  }
+
+  // Anti-Freeze Watchdog: Agar 1.8s tak ek hi spot par atka rahe to rasta badal do
+  const movedDist = Math.hypot(n.x - n.lastX, n.z - n.lastZ);
+  if(movedDist < 0.05 * dt){
+    n.stuckTimer += dt;
+    if(n.stuckTimer > 1.8){
+      n.stuckTimer = 0;
+      // Naya rasta le kar nikal jao
+      if(n.st === 'shop' || n.st === 'queue') nextShelf(n);
+    }
+  } else {
+    n.stuckTimer = 0;
+  }
+  n.lastX = n.x;
+  n.lastZ = n.z;
+
+  let mv = 0;
+  if(n.wp.length){
+    const [tx,tz]=n.wp[0];
+    let dx = (tx - n.x) + steerX * 0.4;
+    let dz = (tz - n.z) + steerZ * 0.4;
+    const d = Math.hypot(dx,dz);
+
+    if(d < 0.12){
+      n.x = tx; n.z = tz; n.wp.shift();
+    } else {
+      const step = Math.min(d, 1.85 * dt * speedMultiplier);
+      n.x += (dx / d) * step;
+      n.z += (dz / d) * step;
+      g.rotation.y = Math.atan2(dx, dz);
+      mv = 1;
+    }
+  }
+
+  g.position.x = n.x;
+  g.position.z = n.z;
+  animateTrolleyPush(g,T,mv);
+  if(n.wp.length) return;
+
+  if(n.st==='shop'){
+    n.st='pick';n.t=1.4;g.rotation.y=-Math.PI/2;
+    g.arms[1].rotation.set(-1.1,.6,0);
+  }
+  else if(n.st==='pick'){
+    n.t-=dt;
+    if(n.t<=0){
+      n.k++;
+      const randomProd=PR[Math.floor(Math.random()*300)];
+      n.sum+=randomProd.p;
+      g.addTrolleyItem(randomProd.c);
+      g.arms[1].rotation.set(-.58,-.15,0);
+      if(n.k<n.n){n.st='shop';nextShelf(n)}else n.st='toCounter';
+    }
+  }
+  else if(n.st==='toCounter'){
+    const c=CT.filter(c=>!c.real&&c.q.length<3).sort((a,b)=>a.q.length-b.q.length)[0];
+    if(c){
+      n.ct=c;c.q.push(n);n.st='queue';
+      planSafeAislePath(n, c.x, qz(c.q.length-1));
+    }
+  }
+  else if(n.st==='queue'){
+    const c=n.ct;g.rotation.y=0;
+    if(c.q[0]===n&&!c.busy){c.busy=1;c.t=0;n.st='bill';disp(c,'SCANNING ITEMS…','#f59f00')}
+  }
+  else if(n.st==='bill'){
+    const c=n.ct;c.t+=dt;
+    if(c.t>2.8){
+      disp(c,'COD: PKR '+n.sum,'#16a34a');c.busy=0;c.reset=2.5;c.q.shift();
+      c.q.forEach((m,i)=>planSafeAislePath(m,c.x,qz(i)));
+      n.st='exit';
+      planSafeAislePath(n, 3, 10.6);
+    }
+  }
+  else if(n.st==='exit'){g.visible=false;n.st='wait';n.t=2+Math.random()*4}
+}
+
+// User Controls
+let yaw=Math.PI,pitch=-.05;const keys={f:0,b:0,l:0,r:0};
+document.querySelectorAll('#pad [data-k]').forEach(b=>{
+  const k=b.dataset.k;
+  b.addEventListener('pointerdown',e=>{keys[k]=1;e.preventDefault()});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>keys[k]=0));
+});
+const map={KeyW:'f',ArrowUp:'f',KeyS:'b',ArrowDown:'b',KeyA:'l',ArrowLeft:'l',KeyD:'r',ArrowRight:'r'};
+addEventListener('keydown',e=>{if(map[e.code])keys[map[e.code]]=1});
+addEventListener('keyup',e=>{if(map[e.code])keys[map[e.code]]=0});
+
+let drag=null;
+canvas.addEventListener('pointerdown',e=>{drag={id:e.pointerId,x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,t:performance.now()};canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.id)return;
+  yaw-=(e.clientX-drag.x)*.005;pitch-=(e.clientY-drag.y)*.005;
+  pitch=Math.max(-1.1,Math.min(1.1,pitch));drag.x=e.clientX;drag.y=e.clientY;
+});
+canvas.addEventListener('pointerup',e=>{
+  if(!drag||e.pointerId!==drag.id)return;
+  const mv=Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy),dt=performance.now()-drag.t;
+  if(mv<8&&dt<350)tap(e.clientX,e.clientY);
+  drag=null;
+});
+
+const ray=new THREE.Raycaster();
+function tap(px,py){
+  closeP();
+  ray.setFromCamera({x:px/innerWidth*2-1,y:-(py/innerHeight)*2+1},cam);
+  const h=ray.intersectObjects(hits)[0];
+  if(h&&h.distance<9)add(h.object.userData.id);
+}
+
+// Cart Management
+const cart={};
+const panel=document.getElementById('panel'),aisles=document.getElementById('aisles'),btn=document.getElementById('cartBtn'),toast=document.getElementById('toast');
+let tt;
+function add(i){
+  cart[i]=(cart[i]||0)+1;render();trolleyAdd(PR[i].c);
+  toast.textContent='✅ Added '+PR[i].n+' · PKR '+PR[i].p;toast.style.opacity=1;
+  clearTimeout(tt);tt=setTimeout(()=>toast.style.opacity=0,1100);
+}
+function render(){
+  let n=0,t=0,h='';
+  for(const i in cart){n+=cart[i];t+=cart[i]*PR[i].p;h+=`<div class="row"><span>${PR[i].e} ${PR[i].n} × ${cart[i]}</span><b>PKR ${cart[i]*PR[i].p}</b></div>`}
+  btn.textContent=`🛒 ${n} · PKR ${t}`;
+  panel.innerHTML=(h||'<div class="row">Cart is empty</div>')+(n?`<div class="row"><b>Total Amount</b><b>PKR ${t}</b></div><button id="clr">Empty Cart</button>`:'');
+  const c=document.getElementById('clr');if(c)c.onclick=()=>{for(const k in cart)delete cart[k];render();trolleyClear()};
+}
+function closeP(){panel.style.display='none';aisles.style.display='none'}
+btn.onclick=()=>{const o=panel.style.display==='block';closeP();if(!o)panel.style.display='block'};
+document.getElementById('aBtn').onclick=()=>{const o=aisles.style.display==='grid';closeP();if(!o)aisles.style.display='grid'};
+
+CATS.forEach((c,i)=>{
+  const b=document.createElement('button');b.textContent=c[1]+' '+c[0];
+  b.onclick=()=>{cam.position.set(gond[i].x+1.9,1.6,gond[i].z);yaw=Math.PI/2;pitch=-.05;closeP()};
+  aisles.appendChild(b);
+});
+render();
+
+[['💳 Express Checkout 04',6,6.9],['🧾 Checkout Counters',-3.5,6.4]].forEach(([t,x,z])=>{
+  const b=document.createElement('button');b.textContent=t;
+  b.onclick=()=>{cam.position.set(x,1.6,z);yaw=Math.PI;pitch=-.05;closeP()};
+  aisles.appendChild(b);
+});
+
+// ==========================================================
+// BILLING & CASH ON DELIVERY + PDF DOWNLOAD
+// ==========================================================
+const bill=document.getElementById('bill'),bc=document.getElementById('bc'),billBtn=document.getElementById('billBtn');
+let billTok=0,billNo=94210;
+function closeBill(){billTok++;bill.style.display='none';const r=CT[3];if(r.busy){r.busy=0;disp(r,'CHECKOUT 04 · OPEN','#16a34a')}}
+
+function generatePdfInvoice(purchasedItems, sub, gst, total, invoiceNumber, dateString){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFillColor(15, 23, 42);
+  doc.rect(0, 0, 210, 36, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('HYPERMART PRIME', 14, 18);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Smart Retail Superstore · Official Tax Invoice', 14, 26);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(56, 189, 248);
+  doc.text('PAYMENT: CASH ON DELIVERY', 140, 26);
+
+  doc.setTextColor(30, 41, 59);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Invoice No: INV-${invoiceNumber}`, 14, 46);
+  doc.text(`Date & Time: ${dateString}`, 14, 52);
+  doc.text(`Billing Type: Cash on Delivery (COD)`, 14, 58);
+  doc.text(`Counter: Checkout Lane 04 (Express)`, 14, 64);
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 70, 182, 8, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.text('Item Description', 18, 75);
+  doc.text('Qty', 110, 75);
+  doc.text('Price (PKR)', 135, 75);
+  doc.text('Total (PKR)', 165, 75);
+
+  doc.setFont('helvetica', 'normal');
+  let y = 84;
+  purchasedItems.forEach(it => {
+    doc.text(it.n, 18, y);
+    doc.text(String(it.q), 112, y);
+    doc.text(`${it.p}`, 138, y);
+    doc.text(`${it.q * it.p}`, 168, y);
+    y += 7;
+  });
+
+  y += 4;
+  doc.setDrawColor(203, 213, 225);
+  doc.line(14, y, 196, y);
+  y += 8;
+  doc.text('Subtotal:', 125, y);
+  doc.text(`PKR ${sub}`, 165, y);
+  y += 6;
+  doc.text('Sales Tax (5%):', 125, y);
+  doc.text(`PKR ${gst}`, 165, y);
+  y += 8;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text('Net Total (COD):', 115, y);
+  doc.text(`PKR ${total}`, 165, y);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(100, 116, 139);
+  doc.text('Payment terms: Cash on Delivery. Please pay exact cash at reception/delivery. Shukriya!', 14, y + 20);
+
+  doc.save(`Hypermart_Invoice_INV-${invoiceNumber}.pdf`);
+}
+
+function pay(sub,tok,ft,purchasedItems){
+  const gst=Math.round(sub*.05),tot=sub+gst;
+  ft.innerHTML=`
+    <div class='r'><span>Subtotal</span><b>PKR ${sub}</b></div>
+    <div class='r'><span>Sales Tax (5%)</span><b>PKR ${gst}</b></div>
+    <div class='r' style='font-size:16px;border-top:2px solid #0f172a;padding-top:6px'><b>Net Total Amount</b><b>PKR ${tot}</b></div>
+    <div style='margin-top:12px;font-weight:700;color:#0f172a'>Payment Mode:</div>
+    <button id='codBtn' style='width:100%;background:#16a34a;margin-top:6px;font-size:15px'>💵 Confirm Cash on Delivery (COD)</button>
+    <div style='font-size:11px;color:#64748b;margin-top:4px;text-align:center'>Only Cash on Delivery is available for this store.</div>
+    <button id='cx' style='width:100%;margin-top:8px'>Cancel</button>
+  `;
+
+  document.getElementById('codBtn').onclick=()=>{
+    ft.innerHTML='<div style="padding:14px 0;font-weight:700;color:#0284c7">⏳ Confirming Cash on Delivery Order…</div>';
+    setTimeout(()=>{
+      if(tok!==billTok)return;billNo++;
+      const now = new Date();
+      const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      
+      ft.innerHTML=`
+        <div class='r' style='background:#f0fdf4;padding:8px;border-radius:8px;color:#16a34a'><b>✅ CASH ON DELIVERY ORDER PLACED</b></div>
+        <div class='r'><span>Invoice Number</span><b>INV-${billNo}</b></div>
+        <div class='r'><span>Payment Method</span><b>Cash on Delivery (COD)</b></div>
+        <div class='r'><span>Amount Payable</span><b>PKR ${tot}</b></div>
+        <div class='r'><span>Order Time</span><b>${dateStr}</b></div>
+        <button id='dlPdf' style='width:100%;background:#0284c7;margin-top:12px;font-size:14px'>📥 Download Invoice (PDF)</button>
+        <button id='dn' style='width:100%;margin-top:8px'>Done / Close</button>
+      `;
+
+      document.getElementById('dlPdf').onclick=()=>{
+        generatePdfInvoice(purchasedItems, sub, gst, tot, billNo, dateStr);
+      };
+
+      for(const k in cart)delete cart[k];render();trolleyClear();
+      const r=CT[3];r.busy=0;r.reset=4;disp(r,'COD: PKR '+tot,'#16a34a');
+      document.getElementById('dn').onclick=closeBill;
+    },1000);
+  };
+  document.getElementById('cx').onclick=closeBill;
+}
+
+billBtn.onclick=()=>{
+  const ids=Object.keys(cart);if(!ids.length)return;
+  const tok=++billTok;bill.style.display='flex';CT[3].busy=1;disp(CT[3],'SCANNING ITEMS…','#f59f00');
+  bc.innerHTML=`
+    <div style='text-align:center;border-bottom:2px solid #0f172a;padding-bottom:6px;margin-bottom:8px'>
+      <b style='font-size:16px'>HYPERMART PRIME</b>
+      <div style='font-size:11px;color:#64748b'>TAX INVOICE · CASH ON DELIVERY ONLY</div>
+      <div style='font-size:12px;font-weight:600;margin-top:2px'>CHECKOUT LANE 04 (EXPRESS)</div>
+    </div>
+    <div id='rows'></div>
+    <div id='ft' style='margin-top:10px'><button id='cx'>Cancel</button></div>
+  `;
+  const rows=document.getElementById('rows'),ft=document.getElementById('ft');
+  document.getElementById('cx').onclick=closeBill;
+  let sub=0;const gap=Math.min(350,2800/ids.length);
+  const purchasedItems=[];
+
+  ids.forEach((id,k)=>setTimeout(()=>{
+    if(tok!==billTok)return;
+    const q=cart[id],a=q*PR[id].p;sub+=a;
+    purchasedItems.push({n:PR[id].n, q, p:PR[id].p});
+    rows.insertAdjacentHTML('beforeend',`<div class='r'><span>${PR[id].e} ${PR[id].n} ×${q}</span><b>PKR ${a}</b></div>`);
+    if(k===ids.length-1)setTimeout(()=>{if(tok===billTok)pay(sub,tok,ft,purchasedItems)},400);
+  },k*gap+200));
+};
+
+function tick(dt){
+  const T=clock.elapsedTime;
+  NP.forEach(n=>npcTick(n,dt,T));
+  CT.forEach(c=>{
+    c.ck.arms[1].rotation.x=c.busy?-0.9+Math.sin(T*10)*.35:Math.sin(T*2)*.05;
+    if(c.reset>0){c.reset-=dt;if(c.reset<=0&&!c.busy)disp(c,c.real?'CHECKOUT 04 · OPEN':'LANE OPEN',c.real?'#16a34a':'#0284c7')}
+  });
+  const p=cam.position,near=Math.hypot(p.x-6,p.z-7.2)<2.8&&bill.style.display!=='flex';
+  billBtn.style.display=near?'block':'none';
+  if(near){const w=Object.keys(cart).length?'💳 Proceed to Checkout':'💳 Cart is empty';if(billBtn.textContent!==w)billBtn.textContent=w}
+}
+
+setTimeout(()=>document.getElementById('hint').style.opacity=0,8000);
+
+// Collision & Loop
+const blocked=(x,z)=>BL.some(g=>Math.abs(x-g.x)<g.hx&&Math.abs(z-g.z)<g.hz);
+const clock=new THREE.Clock();
+
+function loop(){
+  const dt=Math.min(clock.getDelta(),.05),sp=3.2*dt;
+  const f=keys.f-keys.b,r=keys.r-keys.l,p=cam.position;
+  const nx=p.x+(-Math.sin(yaw)*f+Math.cos(yaw)*r)*sp,nz=p.z+(-Math.cos(yaw)*f-Math.sin(yaw)*r)*sp;
+  if(!blocked(nx,p.z))p.x=nx;
+  if(!blocked(p.x,nz))p.z=nz;
+  p.x=Math.max(-10,Math.min(10,p.x));p.z=Math.max(-11,Math.min(10.5,p.z));
+  cam.rotation.set(pitch,yaw,0);
+  tick(dt);
+  R.render(S,cam);
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
